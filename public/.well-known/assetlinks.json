@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.mizansh32.yourbuddy",
+        "sha256_cert_fingerprints": ["58:70:0C:5B:13:B9:26:1A:DF:C7:15:8C:52:5B:EC:56:39:69:90:20:C1:75:1A:CA:58:F4:85:52:7A:83:D0:8A"]
+      }
+    }]
