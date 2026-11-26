@@ -38,7 +38,7 @@ const DEFAULT_WORKSPACES = {
     university: 'RUET',
     department: 'Mechatronics Engineering (MTE)',
     batch: '25 Series (1-2)',
-    crPin: import.meta.env.VITE_CR_SECRET_PIN || '2026',
+    crPin: import.meta.env.VITE_CR_SECRET_PIN,
     workingDays: ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'],
     tickerText: '@all 6th Week: Sat ME 1255 (MUH) CT (Slide a jotodur ache) • Sun English (AAM) Reading PDF submission • Mon Math 1227 (MAH) CT (Last class porjonto) • Wed EEE 1287 (ZT) CT',
     urgentNotice: '6th Week Schedule Live: Check CT periods & English (AAM) PDF submission deadline below.',
@@ -149,7 +149,7 @@ export default function App() {
 
   // Modals & Admin
   const [wsModalOpen, setWsModalOpen] = useState(false);
-  const [newWs, setNewWs] = useState({ university: '', department: '', batch: '', crPin: import.meta.env.VITE_CR_SECRET_PIN || '2026', days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'] });
+  const [newWs, setNewWs] = useState({ university: '', department: '', batch: '', crPin: import.meta.env.VITE_CR_SECRET_PIN, days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'] });
   const [crUnlocked, setCrUnlocked] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
@@ -230,6 +230,7 @@ export default function App() {
   }, []);
 
   const saveWorkspaceUpdate = async (updatedWs) => {
+    if (updatedWs.id === 'ruet-mte-25' && import.meta.env.VITE_CR_SECRET_PIN) { updatedWs = { ...updatedWs, crPin: import.meta.env.VITE_CR_SECRET_PIN }; }
     setWorkspaces((prev) => ({ ...prev, [updatedWs.id]: updatedWs }));
     if (isFirebaseConfigured && db) {
       try {
@@ -332,7 +333,7 @@ export default function App() {
     await saveWorkspaceUpdate(created);
     setActiveWsId(id);
     setWsModalOpen(false);
-    setNewWs({ university: '', department: '', batch: '', crPin: import.meta.env.VITE_CR_SECRET_PIN || '2026', days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'] });
+    setNewWs({ university: '', department: '', batch: '', crPin: import.meta.env.VITE_CR_SECRET_PIN, days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'] });
   };
 
   const bgMain = darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900';
@@ -863,7 +864,8 @@ export default function App() {
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    if (pinInput === currentWs.crPin) {
+                    const activePin = (currentWs.id === 'ruet-mte-25' && import.meta.env.VITE_CR_SECRET_PIN) ? import.meta.env.VITE_CR_SECRET_PIN : currentWs.crPin;
+                    if (pinInput === activePin) {
                       setCrUnlocked(true);
                       setPinError('');
                     } else {
