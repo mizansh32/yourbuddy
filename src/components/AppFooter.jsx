@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 const DEVELOPER = {
   name: 'Mizan',
   role: "Developer • RUET MTE '25",
-  photo: '/developer.jpg',
+  photo: '/developer.svg',
   handles: [
     { label: 'GitHub', url: 'https://github.com/mizansh32' },
-    { label: 'LinkedIn', url: 'https://linkedin.com' },
-    { label: 'Facebook', url: 'https://facebook.com' },
+    { label: 'LinkedIn', url: 'https://www.linkedin.com/in/abdulla-al-mizan-85b564287/' },
+    { label: 'Facebook', url: 'https://www.facebook.com/abdullaalmamun.sheikh.9/' },
     { label: 'Instagram', url: 'https://instagram.com' },
   ],
 };
