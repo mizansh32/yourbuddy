@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import LabPrintingSection from './components/LabPrintingSection';
 import AppFooter from './components/AppFooter';
-import {
-  Calendar, Clock, BookOpen, CheckCircle2, Circle, Shield, Plus, Trash2,
+import { Calendar, Clock, BookOpen, CheckCircle2, Circle, Shield, Plus, Trash2,
   Sun, Moon, X, ChevronDown, Download, Smartphone, Share, Wifi, WifiOff,
-  AlertTriangle, Megaphone, Users, GraduationCap, Lock, Unlock, Check, FileText
-} from 'lucide-react';
+  AlertTriangle, Megaphone, Users, GraduationCap, Lock, Unlock, Check, FileText, Printer } from "lucide-react";
 import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './firebase';
 
@@ -318,7 +316,9 @@ export default function App() {
   const createWorkspace = async (e) => {
     e.preventDefault();
     if (!newWs.university.trim() || !newWs.department.trim()) return;
-    const id = `${newWs.university}-${newWs.department}-${Date.now()}`.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const id = `${newWs.university}-${newWs.department}-${Date.now()}
+<div className="pt-5 border-t border-slate-500/20"><LabPrintingSection labPrinting={currentWs.labPrinting} darkMode={darkMode} editable={true} onSaveLabPrinting={(labPrinting) => saveWorkspaceUpdate({ ...currentWs, labPrinting })} /></div>
+`.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const created = {
       id,
       university: newWs.university.trim(),
@@ -376,14 +376,6 @@ export default function App() {
                   {cloudStatus === 'synced' ? 'Live Sync' : 'Local Mode'}
                 </span>
               </div>
-
-            <div className="mt-6">
-              <LabPrintingSection
-                labPrinting={currentWs.labPrinting}
-                editable={true}
-                onSaveLabPrinting={(labPrinting) => saveWorkspaceUpdate({ ...currentWs, labPrinting })}
-              />
-            </div>
               <button
                 onClick={() => setWsModalOpen(true)}
                 className={`flex items-center gap-1 text-xs truncate max-w-[210px] sm:max-w-xs ${mutedText} hover:text-indigo-500`}
@@ -401,7 +393,7 @@ export default function App() {
               { id: 'dashboard', label: 'Overview' },
               { id: 'routine', label: 'Routine' },
               { id: 'cts', label: 'CTs & Exams' },
-              { id: 'assignments', label: 'Assignments' },
+              { id: "assignments", label: "Assignments" }, { id: "printing", label: "Printing" },
               { id: 'admin', label: 'CR Portal' },
             ].map((tab) => (
               <button
@@ -565,13 +557,6 @@ export default function App() {
             </div>
 
             {/* Chronological Timeline */}
-                    <div className="mb-6">
-          <LabPrintingSection
-            labPrinting={currentWs.labPrinting}
-            editable={false}
-            onOpenAdmin={() => setActiveTab('admin')}
-          />
-        </div>
 
 <div className={`p-5 rounded-2xl border ${cardBg}`}>
               <h2 className="font-bold text-base mb-4">Upcoming Academic Roadmap (6th Week & Beyond)</h2>
@@ -613,11 +598,17 @@ export default function App() {
                 </div>
               )}
             </div>
-          </div>
+          
+<LabPrintingSection labPrinting={currentWs.labPrinting} darkMode={darkMode} editable={false} onOpenAdmin={() => setActiveTab("admin")} />
+</div>
         )}
 
         {/* TAB 2: WEEKLY ROUTINE */}
-        {activeTab === 'routine' && (
+        {activeTab === "printing" && (<div className="space-y-6">
+<LabPrintingSection labPrinting={currentWs.labPrinting} darkMode={darkMode} editable={false} onOpenAdmin={() => setActiveTab("admin")} />
+</div>)}
+
+{activeTab === 'routine' && (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -1098,16 +1089,16 @@ export default function App() {
             )}
           </div>
         )}
-              <AppFooter />
+              <AppFooter darkMode={darkMode} />
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className={`md:hidden fixed bottom-0 inset-x-0 z-30 border-t backdrop-blur-md grid grid-cols-5 py-1.5 ${darkMode ? 'bg-slate-950/90 border-slate-800' : 'bg-white/90 border-slate-200'}`}>
+      <nav className={`md:hidden fixed bottom-0 inset-x-0 z-30 border-t backdrop-blur-md grid grid-cols-6 py-1.5 ${darkMode ? 'bg-slate-950/90 border-slate-800' : 'bg-white/90 border-slate-200'}`}>
         {[
           { id: 'dashboard', label: 'Home', icon: Calendar },
           { id: 'routine', label: 'Routine', icon: Clock },
           { id: 'cts', label: 'CTs', icon: BookOpen },
-          { id: 'assignments', label: 'Tasks', icon: CheckCircle2 },
+          { id: "assignments", label: "Tasks", icon: CheckCircle2 }, { id: "printing", label: "Print", icon: Printer },
           { id: 'admin', label: 'CR', icon: Shield },
         ].map((item) => {
           const Icon = item.icon;
