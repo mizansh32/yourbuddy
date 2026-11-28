@@ -317,7 +317,6 @@ export default function App() {
     e.preventDefault();
     if (!newWs.university.trim() || !newWs.department.trim()) return;
     const id = `${newWs.university}-${newWs.department}-${Date.now()}
-<div className="pt-5 border-t border-slate-500/20"><LabPrintingSection labPrinting={currentWs.labPrinting} darkMode={darkMode} editable={true} onSaveLabPrinting={(labPrinting) => saveWorkspaceUpdate({ ...currentWs, labPrinting })} /></div>
 `.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const created = {
       id,
@@ -363,7 +362,7 @@ export default function App() {
       <header className={`sticky top-0 z-30 border-b backdrop-blur-md ${darkMode ? 'bg-slate-950/85 border-slate-800' : 'bg-white/85 border-slate-200'}`}>
         <div className="max-w-6xl mx-auto px-4 h-15 py-2.5 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <img src="/favicon.svg" alt="YourBuddy" className="w-10 h-10 rounded-xl object-cover shadow-sm shrink-0" />
+            <img src="/favicon.svg" alt="YourBuddy" className="w-11 h-11 rounded-xl object-cover shadow-md ring-2 ring-indigo-500/30 shrink-0" />
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-bold tracking-tight text-base">YourBuddy</span>
@@ -599,7 +598,7 @@ export default function App() {
               )}
             </div>
           
-<LabPrintingSection labPrinting={currentWs.labPrinting} darkMode={darkMode} editable={false} onOpenAdmin={() => setActiveTab("admin")} />
+<LabPrintingSection labPrinting={currentWs.labPrinting} darkMode={darkMode} editable={false} hideWhenDisabled={true} onOpenAdmin={() => setActiveTab("admin")} />
 </div>
         )}
 
@@ -910,7 +909,7 @@ export default function App() {
                     { id: 'cts', label: 'Manage CTs' },
                     { id: 'assignments', label: 'Manage Assignments' },
                     { id: 'routine', label: 'Manage Routine' },
-                    { id: 'notices', label: 'Ticker & Notice' },
+                    { id: "notices", label: "Ticker & Notice" }, { id: "printing", label: "Lab Printing" },
                   ].map((s) => (
                     <button
                       key={s.id}
@@ -1084,6 +1083,15 @@ export default function App() {
                       />
                     </div>
                   </div>
+                )}
+
+                {adminSection === "printing" && (
+                  <LabPrintingSection
+                    labPrinting={currentWs.labPrinting}
+                    darkMode={darkMode}
+                    editable={true}
+                    onSaveLabPrinting={(labPrinting) => saveWorkspaceUpdate({ ...currentWs, labPrinting })}
+                  />
                 )}
               </div>
             )}

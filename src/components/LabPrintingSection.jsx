@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Printer, Clock, CheckCircle2, FileText, Edit3, AlertCircle } from 'lucide-react';
+import { Printer, Clock, CheckCircle2, FileText, Edit3, AlertCircle, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 
 const DEFAULT_LAB_PRINTING = {
+  enabled: true,
   labCourse: 'ME 1256 — Basic Mechanical Engineering Lab',
   reportingTime: 'Saturday • Period 1 (08:00 AM) • Lab Room',
   reports: [
-    { title: 'Exp 01: Study of Steam Boiler', materials: 'Cover Page, Data Sheet, Schematic Diagram' },
-    { title: 'Exp 02: Internal Combustion Engine', materials: 'Cover Page, Observation Table, Graph Paper' },
-    { title: 'Exp 03: Refrigeration & Air Conditioning', materials: 'Cover Page, Calculation Sheet' },
+    { id: '1', title: 'Exp 01: Study of Steam Boiler', materials: 'Cover Page, Data Sheet, Schematic Diagram' },
+    { id: '2', title: 'Exp 02: Internal Combustion Engine', materials: 'Cover Page, Observation Table, Graph Paper' },
+    { id: '3', title: 'Exp 03: Refrigeration & Air Conditioning', materials: 'Cover Page, Calculation Sheet' },
   ],
   extraNote: 'Print single-sided on A4 offset paper; bring calculator & lab manual.',
 };
@@ -16,16 +17,18 @@ export default function LabPrintingSection({
   labPrinting,
   darkMode = false,
   editable = false,
+  hideWhenDisabled = false,
   onSaveLabPrinting,
   onOpenAdmin,
 }) {
+  const hasCustom = labPrinting && typeof labPrinting === 'object';
   const normalized = {
     ...DEFAULT_LAB_PRINTING,
-    ...(labPrinting || {}),
-    reports:
-      Array.isArray(labPrinting?.reports) && labPrinting.reports.length === 3
-        ? labPrinting.reports
-        : DEFAULT_LAB_PRINTING.reports,
+    ...(hasCustom ? labPrinting : {}),
+    enabled: hasCustom && typeof labPrinting.enabled === 'boolean' ? labPrinting.enabled : true,
+    reports: hasCustom && Array.isArray(labPrinting.reports)
+      ? labPrinting.reports
+      : DEFAULT_LAB_PRINTING.reports,
   };
 
   const [draft, setDraft] = useState(normalized);
@@ -35,9 +38,31 @@ export default function LabPrintingSection({
     setDraft(normalized);
   }, [labPrinting]);
 
+  if (!editable && hideWhenDisabled && (!normalized.enabled || normalized.reports.length === 0)) {
+    return null;
+  }
+
   const updateReport = (idx, field, val) => {
     const next = draft.reports.map((r, i) => (i === idx ? { ...r, [field]: val } : r));
     setDraft({ ...draft, reports: next });
+  };
+
+  const addReportItem = () => {
+    setDraft({
+      ...draft,
+      enabled: true,
+      reports: [
+        ...draft.reports,
+        { id: String(Date.now()), title: '', materials: '' },
+      ],
+    });
+  };
+
+  const removeReportItem = (idx) => {
+    setDraft({
+      ...draft,
+      reports: draft.reports.filter((_, i) => i !== idx),
+    });
   };
 
   const handleSave = async () => {
@@ -62,6 +87,13 @@ export default function LabPrintingSection({
 
   const mutedText = darkMode ? 'text-slate-400' : 'text-slate-500';
 
+  const gridColsClass =
+    normalized.reports.length === 1
+      ? 'grid-cols-1'
+      : normalized.reports.length === 2
+      ? 'grid-cols-1 md:grid-cols-2'
+      : 'grid-cols-1 md:grid-cols-3';
+
   return (
     <section className={`rounded-2xl border p-4 sm:p-6 transition-colors ${shellClass}`}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-slate-800">
@@ -79,16 +111,30 @@ export default function LabPrintingSection({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           {editable ? (
-            <button
-              type="button"
-              onClick={handleSave}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>{savedToast ? 'Saved Live!' : 'Save Print Schedule'}</span>
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => setDraft({ ...draft, enabled: !draft.enabled })}
+                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition ${
+                  draft.enabled
+                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600'
+                    : 'border-rose-500/30 bg-rose-500/10 text-rose-500'
+                }`}
+              >
+                {draft.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                <span>{draft.enabled ? 'Visible on Home' : 'Hidden on Home'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{savedToast ? 'Saved Live!' : 'Save & Sync Live'}</span>
+              </button>
+            </>
           ) : (
             onOpenAdmin && (
               <button
@@ -135,42 +181,82 @@ export default function LabPrintingSection({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            {draft.reports.map((rep, idx) => (
-              <div key={idx} className={`p-3.5 rounded-xl border space-y-2.5 ${subCardClass}`}>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono w-6 h-6 rounded-lg bg-indigo-600 text-white text-xs font-bold flex items-center justify-center">
-                    0{idx + 1}
-                  </span>
-                  <span className={`text-[11px] font-bold uppercase tracking-wider ${mutedText}`}>
-                    Print Item #{idx + 1}
-                  </span>
-                </div>
-                <div>
-                  <label className={`block text-[10px] font-semibold uppercase mb-1 ${mutedText}`}>
-                    Experiment / Report Title
-                  </label>
-                  <input
-                    value={rep.title}
-                    onChange={(e) => updateReport(idx, 'title', e.target.value)}
-                    placeholder={`Report #${idx + 1} Title`}
-                    className={`w-full px-3 py-2 rounded-lg border text-xs sm:text-sm outline-none transition ${inputClass}`}
-                  />
-                </div>
-                <div>
-                  <label className={`block text-[10px] font-semibold uppercase mb-1 ${mutedText}`}>
-                    Materials to Print
-                  </label>
-                  <input
-                    value={rep.materials}
-                    onChange={(e) => updateReport(idx, 'materials', e.target.value)}
-                    placeholder="Cover Page, Data Sheet, Graph..."
-                    className={`w-full px-3 py-2 rounded-lg border text-xs sm:text-sm outline-none transition ${inputClass}`}
-                  />
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center justify-between pt-1">
+            <span className={`text-xs font-bold uppercase tracking-wider ${mutedText}`}>
+              Print Items ({draft.reports.length})
+            </span>
+            <button
+              type="button"
+              onClick={addReportItem}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600/10 text-indigo-600 hover:bg-indigo-600 hover:text-white transition"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Print Item</span>
+            </button>
           </div>
+
+          {draft.reports.length === 0 ? (
+            <div className={`rounded-xl border border-dashed p-6 text-center space-y-2 ${subCardClass}`}>
+              <p className={`text-xs ${mutedText}`}>
+                No print items added. The printing section will stay hidden on the Overview page until you add an item.
+              </p>
+              <button
+                type="button"
+                onClick={addReportItem}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add First Print Item</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              {draft.reports.map((rep, idx) => (
+                <div key={rep.id || idx} className={`p-3.5 rounded-xl border space-y-2.5 ${subCardClass}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono w-6 h-6 rounded-lg bg-indigo-600 text-white text-xs font-bold flex items-center justify-center">
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
+                      <span className={`text-[11px] font-bold uppercase tracking-wider ${mutedText}`}>
+                        Print Item #{idx + 1}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeReportItem(idx)}
+                      title="Remove this print item"
+                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div>
+                    <label className={`block text-[10px] font-semibold uppercase mb-1 ${mutedText}`}>
+                      Experiment / Report Title
+                    </label>
+                    <input
+                      value={rep.title}
+                      onChange={(e) => updateReport(idx, 'title', e.target.value)}
+                      placeholder={`Report #${idx + 1} Title`}
+                      className={`w-full px-3 py-2 rounded-lg border text-xs sm:text-sm outline-none transition ${inputClass}`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-[10px] font-semibold uppercase mb-1 ${mutedText}`}>
+                      Materials to Print
+                    </label>
+                    <input
+                      value={rep.materials}
+                      onChange={(e) => updateReport(idx, 'materials', e.target.value)}
+                      placeholder="Cover Page, Data Sheet, Graph..."
+                      className={`w-full px-3 py-2 rounded-lg border text-xs sm:text-sm outline-none transition ${inputClass}`}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div>
             <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${mutedText}`}>
@@ -184,23 +270,29 @@ export default function LabPrintingSection({
             />
           </div>
         </div>
+      ) : normalized.reports.length === 0 || !normalized.enabled ? (
+        <div className="pt-4">
+          <div className={`rounded-xl border border-dashed p-6 text-center text-xs ${subCardClass} ${mutedText}`}>
+            No lab printing items are currently scheduled.
+          </div>
+        </div>
       ) : (
         <div className="pt-4 space-y-3.5">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className={`grid ${gridColsClass} gap-3`}>
             {normalized.reports.map((rep, idx) => (
               <div
-                key={idx}
+                key={rep.id || idx}
                 className={`rounded-xl border p-4 flex flex-col justify-between transition ${subCardClass}`}
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2.5">
                     <span className="font-mono px-2 py-0.5 rounded-md bg-indigo-600 text-white text-[11px] font-bold">
-                      PRINT 0{idx + 1}
+                      PRINT {String(idx + 1).padStart(2, '0')}
                     </span>
                     <FileText className="w-4 h-4 text-indigo-500/70" />
                   </div>
                   <h3 className="font-display font-bold text-sm leading-snug">
-                    {rep.title}
+                    {rep.title || `Lab Print Item #${idx + 1}`}
                   </h3>
                 </div>
 
@@ -209,7 +301,7 @@ export default function LabPrintingSection({
                     Materials to Print
                   </span>
                   <p className="text-xs font-semibold text-indigo-600">
-                    {rep.materials}
+                    {rep.materials || 'Standard lab cover & data sheet'}
                   </p>
                 </div>
               </div>
