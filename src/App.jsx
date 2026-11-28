@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import LabPrintingSection from './components/LabPrintingSection';
 import AppFooter from './components/AppFooter';
+import RoadmapEditor from './components/RoadmapEditor';
 import { Calendar, Clock, BookOpen, CheckCircle2, Circle, Shield, Plus, Trash2,
   Sun, Moon, X, ChevronDown, Download, Smartphone, Share, Wifi, WifiOff,
   AlertTriangle, Megaphone, Users, GraduationCap, Lock, Unlock, Check, FileText, Printer } from "lucide-react";
@@ -362,7 +363,7 @@ export default function App() {
       <header className={`sticky top-0 z-30 border-b backdrop-blur-md ${darkMode ? 'bg-slate-950/85 border-slate-800' : 'bg-white/85 border-slate-200'}`}>
         <div className="max-w-6xl mx-auto px-4 h-15 py-2.5 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <img src="/favicon.svg" alt="YourBuddy" className="w-11 h-11 rounded-xl object-cover shadow-md ring-2 ring-indigo-500/30 shrink-0" />
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-[#080736] shadow-md ring-2 ring-indigo-500/35 shrink-0 flex items-center justify-center"><img src="/logo.svg" alt="YourBuddy" className="w-full h-full object-cover scale-[1.36]" /></div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-bold tracking-tight text-base">YourBuddy</span>
@@ -558,12 +559,12 @@ export default function App() {
             {/* Chronological Timeline */}
 
 <div className={`p-5 rounded-2xl border ${cardBg}`}>
-              <h2 className="font-bold text-base mb-4">Upcoming Academic Roadmap (6th Week & Beyond)</h2>
-              {timelineItems.length === 0 ? (
+              <div className="flex items-center justify-between gap-2 mb-4"><h2 className="font-display font-bold text-base">{currentWs.roadmapTitle || "Upcoming Academic Roadmap (6th Week & Beyond)"}</h2><button type="button" onClick={() => setActiveTab("admin")} className="text-xs font-semibold text-indigo-600 hover:underline shrink-0">CR Edit →</button></div>
+              {[...timelineItems, ...(currentWs.roadmapItems || []).map((r) => ({ id: r.id, kind: r.kind || "EVENT", code: r.code || "EVENT", title: r.title, time: r.dateTime, meta: r.meta || "", details: r.details || "" }))].sort((a, b) => new Date(a.time || 0) - new Date(b.time || 0)).length === 0 ? (
                 <p className={`text-sm ${mutedText}`}>Nothing scheduled yet. CR can add CTs and assignments in the CR Portal.</p>
               ) : (
                 <div className="space-y-4 border-l-2 border-indigo-500/30 pl-4 ml-1">
-                  {timelineItems.map((item) => {
+                  {[...timelineItems, ...(currentWs.roadmapItems || []).map((r) => ({ id: r.id, kind: r.kind || "EVENT", code: r.code || "EVENT", title: r.title, time: r.dateTime, meta: r.meta || "", details: r.details || "" }))].sort((a, b) => new Date(a.time || 0) - new Date(b.time || 0)).map((item) => {
                     const cd = formatCountdown(item.time, now);
                     const badgeColor = cd.expired
                       ? 'bg-slate-500/15 text-slate-500'
@@ -909,7 +910,7 @@ export default function App() {
                     { id: 'cts', label: 'Manage CTs' },
                     { id: 'assignments', label: 'Manage Assignments' },
                     { id: 'routine', label: 'Manage Routine' },
-                    { id: "notices", label: "Ticker & Notice" }, { id: "printing", label: "Lab Printing" },
+                    { id: "notices", label: "Ticker & Notice" }, { id: "roadmap", label: "Roadmap" }, { id: "printing", label: "Lab Printing" },
                   ].map((s) => (
                     <button
                       key={s.id}
@@ -1083,6 +1084,14 @@ export default function App() {
                       />
                     </div>
                   </div>
+                )}
+
+                {adminSection === "roadmap" && (
+                  <RoadmapEditor
+                    currentWs={currentWs}
+                    darkMode={darkMode}
+                    onSaveWorkspace={saveWorkspaceUpdate}
+                  />
                 )}
 
                 {adminSection === "printing" && (
