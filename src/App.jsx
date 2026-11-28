@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import LabPrintingSection from './components/LabPrintingSection';
+import AppFooter from './components/AppFooter';
 import {
   Calendar, Clock, BookOpen, CheckCircle2, Circle, Shield, Plus, Trash2,
   Sun, Moon, X, ChevronDown, Download, Smartphone, Share, Wifi, WifiOff,
@@ -374,6 +376,14 @@ export default function App() {
                   {cloudStatus === 'synced' ? 'Live Sync' : 'Local Mode'}
                 </span>
               </div>
+
+            <div className="mt-6">
+              <LabPrintingSection
+                labPrinting={currentWs.labPrinting}
+                editable={true}
+                onSaveLabPrinting={(labPrinting) => saveWorkspaceUpdate({ ...currentWs, labPrinting })}
+              />
+            </div>
               <button
                 onClick={() => setWsModalOpen(true)}
                 className={`flex items-center gap-1 text-xs truncate max-w-[210px] sm:max-w-xs ${mutedText} hover:text-indigo-500`}
@@ -555,7 +565,15 @@ export default function App() {
             </div>
 
             {/* Chronological Timeline */}
-            <div className={`p-5 rounded-2xl border ${cardBg}`}>
+                    <div className="mb-6">
+          <LabPrintingSection
+            labPrinting={currentWs.labPrinting}
+            editable={false}
+            onOpenAdmin={() => setActiveTab('admin')}
+          />
+        </div>
+
+<div className={`p-5 rounded-2xl border ${cardBg}`}>
               <h2 className="font-bold text-base mb-4">Upcoming Academic Roadmap (6th Week & Beyond)</h2>
               {timelineItems.length === 0 ? (
                 <p className={`text-sm ${mutedText}`}>Nothing scheduled yet. CR can add CTs and assignments in the CR Portal.</p>
@@ -1080,6 +1098,7 @@ export default function App() {
             )}
           </div>
         )}
+              <AppFooter />
       </main>
 
       {/* Mobile Bottom Navigation */}
