@@ -363,7 +363,7 @@ export default function App() {
       <header className={`sticky top-0 z-30 border-b backdrop-blur-md ${darkMode ? 'bg-slate-950/85 border-slate-800' : 'bg-white/85 border-slate-200'}`}>
         <div className="max-w-6xl mx-auto px-4 h-15 py-2.5 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-[#080736] shadow-md ring-2 ring-indigo-500/40 shrink-0 flex items-center justify-center"><img src="/favicon.svg?v=3" alt="YourBuddy" className="w-full h-full object-cover scale-[1.12]" /></div>
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-[#080736] shadow-sm ring-1 ring-indigo-500/30 shrink-0 flex items-center justify-center"><img src="/logo.svg" alt="YourBuddy" className="w-full h-full object-cover scale-[1.14]" /></div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-bold tracking-tight text-base">YourBuddy</span>

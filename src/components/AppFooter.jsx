@@ -32,7 +32,7 @@ export default function AppFooter({ darkMode = false }) {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           {/* Brand Column */}
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl overflow-hidden bg-[#080736] shadow-sm ring-1 ring-indigo-500/35 shrink-0 flex items-center justify-center"><img src="/favicon.svg?v=3" alt="YourBuddy" className="w-full h-full object-cover scale-[1.12]" /></div>
+            <div className="w-11 h-11 rounded-xl overflow-hidden bg-[#080736] shadow-sm ring-1 ring-indigo-500/25 shrink-0 flex items-center justify-center"><img src="/logo.svg" alt="YourBuddy" className="w-full h-full object-cover" /></div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-display text-base font-extrabold tracking-tight">
